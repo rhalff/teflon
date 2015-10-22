@@ -1,0 +1,6 @@
+.idea/
+.build/
+lib/
+*.swp
+node_modules/
+*.txt
