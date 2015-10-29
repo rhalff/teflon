@@ -176,5 +176,15 @@ describe('Teflon', () => {
     it('disable move-up state', () => {
       teflon.disableState('move-up')
     })
+    it('activateState with attributes', () => {
+      teflon.activateState('disable-up')
+      const el = teflon.dp.getRef('button-up')
+      expect(el.getAttribute('class')).to.eql('css-button-up css-button-disabled')
+    })
+    it('disableState with attributes', () => {
+      teflon.disableState('disable-up')
+      const el = teflon.dp.getRef('button-up')
+      expect(el.getAttribute('class')).to.eql('css-button-up')
+    })
   })
 })

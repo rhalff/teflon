@@ -396,12 +396,12 @@ export default class Teflon extends EventEmitter {
 
     if (state.attributes) {
       const { attributes: change } = state
-      fns.push(() => {
-        this.dp.setAttributes(this.change)
+      fns.push(function() {
+        _this.dp.setAttributes(this.change)
       }.bind({change: change}))
 
-      rfns.push(() => {
-        this.dp.revertAttributes(this.change)
+      rfns.push(function() {
+        _this.dp.revertAttributes(this.change)
       }.bind({change: change}))
     }
 
