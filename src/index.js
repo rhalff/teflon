@@ -134,9 +134,12 @@ export default class Teflon extends EventEmitter {
    * Never should have to be called directly.
    *
    * Rendering is based on data changes.
+   *
+   * @returns {Teflon} this instance
    */
   render() {
     this.dp.render()
+    return this
   }
 
   /**
@@ -145,8 +148,11 @@ export default class Teflon extends EventEmitter {
    * or one of it's parents is listening for the event.
    *
    * @param {DomEvent} ev Event listener on window
+   * @returns {undefined} Undefined
    */
   _handleEvent(ev) {
+    const _this = this
+
     // TODO: ev.preventDefault()
     ev.stopPropagation()
     if (!this.handlers.hasOwnProperty(ev.type)) {
@@ -155,13 +161,12 @@ export default class Teflon extends EventEmitter {
 
     const cp = this.dp.path(ev.srcElement).split(':')
     while (cp.length) {
-      const path = cp.join(':')
-      if (this.handlers[ev.type].hasOwnProperty(path)) {
-        // todo: should do own propagate.
-        const actions = this.handlers[ev.type][path]
-        actions.forEach((path) => {
-          this.emit(path, ev)
-        })
+      const epath = cp.join(':')
+      if (this.handlers[ev.type].hasOwnProperty(epath)) {
+        const actions = this.handlers[ev.type][epath]
+        for (const action of actions) {
+          _this.emit(action, ev)
+        }
         // TODO: only break if stopPropagation
         break
       }
@@ -183,6 +188,7 @@ export default class Teflon extends EventEmitter {
    * @param {String} type The type
    * @param {String} alias The path/alias
    * @param {String} action action name
+   * @returns {undefined} Undefined
    */
   addEventHandler(type, alias, action) {
     const path = this.dp._dealias(alias)
@@ -208,26 +214,30 @@ export default class Teflon extends EventEmitter {
    * Set target element
    *
    * @param {HTMLElement} el HTML Element
+   * @returns {Teflon} this instance
    */
   setElement(el) {
     this.dp.setElement(el)
+    return this
   }
 
   /**
    * Render
    *
+   * @returns {Teflon} this instance
    */
   render() {
     this.dp.render()
+    return this
   }
 
   /**
    *
    * Get target element
    *
-   * @param {HTMLElement} el HTML Element
+   * @returns {HTMLElement} HTML Element
    */
-  getElement(el) {
+  getElement() {
     return this.dp.el
   }
 
@@ -238,6 +248,7 @@ export default class Teflon extends EventEmitter {
    * @param {String} type The type
    * @param {String} alias The path/alias
    * @param {String} action action name
+   * @returns {undefined} Undefined
    */
   removeEventHandler(type, alias, action) {
     const path = this.dp._dealias(alias)
@@ -265,12 +276,16 @@ export default class Teflon extends EventEmitter {
    *
    * If type is given will only remove those event types
    *
-   * @param {String} type Event Type
+   * @param {String[]} type Event Type
+   * @returns {undefined} Undefined
    */
-  removeEventHandlers(type) {
-    Object.keys(this.handlers).forEach((type) => {
-      this.dp.off(type)
-      delete this.handlers[type]
+  removeEventHandlers(type = []) {
+    const types = Array.isArray(type) ? type : [type]
+    Object.keys(this.handlers).forEach((key) => {
+      if (!types.length || types.indexOf(key) >= 0) {
+        this.dp.off(key)
+        delete this.handlers[key]
+      }
     })
   }
 
@@ -279,9 +294,11 @@ export default class Teflon extends EventEmitter {
    * Set source HTML for this instance.
    *
    * @param {String} html HTML String
+   * @returns {Teflon} this instance
    */
   setHTML(html) {
     this.dp.setHTML(html)
+    return this
   }
 
   /**
@@ -292,9 +309,11 @@ export default class Teflon extends EventEmitter {
    *
    * @param {String} stateName State name
    * @param {Map} state States map
+   * @returns {Teflon} this instance
    */
   addState(stateName, state) {
     this.state[stateName] = state
+    return this
   }
 
   /**
@@ -305,20 +324,20 @@ export default class Teflon extends EventEmitter {
    * @param {Object} map.template Template map def
    * @param {Object} map.data Data map def
    * @param {Object} map.state State map def
+   * @returns {Teflon} this instance
    */
   load(map) {
     // set parse html and set it as default view
-    this.setTemplateMap(map.template)
-    this.setDataMap(map.data)
-    this.setStateMap(map.state)
+    return this.setTemplateMap(map.template)
+      .setDataMap(map.data)
+      .setStateMap(map.state)
   }
 
   /**
    * Set template map
    *
-   * TODO: reset logic is already implemented within dom pointer (I think)
-   *
    * @param {Object} map Template map
+   * @returns {Teflon} this instance
    */
   setTemplateMap(map) {
     if (this.dp.refs.size) {
@@ -327,6 +346,7 @@ export default class Teflon extends EventEmitter {
     Object.keys(map).forEach((key) => {
       this.dp.alias(key, map[key])
     })
+    return this
   }
 
   /**
@@ -334,11 +354,13 @@ export default class Teflon extends EventEmitter {
    * Set data map
    *
    * @param {Object} map Map
+   * @returns {Teflon} this instance
    */
   setDataMap(map) {
     Object.keys(map).forEach((name) => {
       this.link(name, 'data', map[name])
     })
+    return this
   }
 
   /**
@@ -347,7 +369,7 @@ export default class Teflon extends EventEmitter {
    *
    * In order to execute these states commands are generated.
    *
-   * which can then be actived like:
+   * which can then be activated like:
    *
    *   dp.state.set('command-name')
    *
@@ -360,7 +382,7 @@ export default class Teflon extends EventEmitter {
    *
    * @param {String} name Name
    * @param {Object} state State definition
-   * @returns {function(this:{fns: Array})}
+   * @returns {Object} Api object
    */
   createCommand(name, state) {
     const fns = []
@@ -396,19 +418,19 @@ export default class Teflon extends EventEmitter {
 
     if (state.attributes) {
       const { attributes: change } = state
-      fns.push(function() {
+      fns.push(function stateSetter() {
         _this.dp.setAttributes(this.change)
       }.bind({change: change}))
 
-      rfns.push(function() {
+      rfns.push(function stateReverter() {
         _this.dp.revertAttributes(this.change)
       }.bind({change: change}))
     }
 
-    function createCommand(fns) {
+    function createCommand(funcs) {
       return () => {
-        for (let i = 0; i < fns.length; i++) {
-          fns[i]()
+        for (const func of funcs) {
+          func()
         }
       }
     }
@@ -426,11 +448,13 @@ export default class Teflon extends EventEmitter {
    * Activates a predefined state
    *
    * @param {String} name State name to activate
+   * @returns {Teflon} this instance
    */
   activateState(name) {
     if (this.state.hasOwnProperty(name)) {
       this.state[name].activate()
     }
+    return this
   }
 
   /**
@@ -438,11 +462,13 @@ export default class Teflon extends EventEmitter {
    * disables a predefined state
    *
    * @param {String} name State name to disable
+   * @returns {Teflon} this instance
    */
   disableState(name) {
     if (this.state.hasOwnProperty(name)) {
       this.state[name].disable()
     }
+    return this
   }
 
   /**
@@ -451,13 +477,14 @@ export default class Teflon extends EventEmitter {
    *
    * @param {String} name State name
    * @param {Object} state State Definition
+   * @returns {Teflon} this instance
    */
   addState(name, state) {
     if (!this.state.hasOwnProperty(name)) {
       this.state[name] = this.createCommand(name, state)
-    } else {
-      throw Error(`State "${name}" already added`)
+      return this
     }
+    throw Error(`State "${name}" already added`)
   }
 
   /**
@@ -465,26 +492,31 @@ export default class Teflon extends EventEmitter {
    * Removes a state
    *
    * @param {String} name State name
+   * @returns {Teflon} this instance
    */
   removeState(name) {
     if (this.state.hasOwnProperty(name)) {
       this.disableState()
       delete this.state[name]
+      return this
     }
+    throw Error(`State "${name}" does not exist`)
   }
 
   /**
    *
    * Set the state map for this template
    *
-   * @param {Object} map
-   * @param {Object} map.events
-   * @param {Object} map.attributes
+   * @param {Object} map State map
+   * @param {Object} map.events State Events
+   * @param {Object} map.attributes State Attributes
+   * @returns {Teflon} this instance
    */
   setStateMap(map) {
     Object.keys(map).forEach((name) => {
       this.addState(name, map[name])
     })
+    return this
   }
 }
 
