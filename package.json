@@ -29,7 +29,8 @@
   },
   "homepage": "https://github.com/rhalff/teflon#readme",
   "dependencies": {
-    "dompointer": "^2.0.1"
+    "dompointer": "^2.2.1",
+    "dot-object": "^1.3.0"
   },
   "devDependencies": {
     "babel": "^5.8.23",
