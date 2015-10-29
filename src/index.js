@@ -151,8 +151,6 @@ export default class Teflon extends EventEmitter {
    * @returns {undefined} Undefined
    */
   _handleEvent(ev) {
-    const _this = this
-
     // TODO: ev.preventDefault()
     ev.stopPropagation()
     if (!this.handlers.hasOwnProperty(ev.type)) {
@@ -165,7 +163,7 @@ export default class Teflon extends EventEmitter {
       if (this.handlers[ev.type].hasOwnProperty(epath)) {
         const actions = this.handlers[ev.type][epath]
         for (const action of actions) {
-          _this.emit(action, ev)
+          this.emit(action, ev)
         }
         // TODO: only break if stopPropagation
         break
@@ -410,10 +408,10 @@ export default class Teflon extends EventEmitter {
     }
 
     if (state.events) {
-      state.events.forEach((change) => {
+      for (const change of state.events) {
         fns.push(activate(change))
         rfns.push(disable(change))
-      })
+      }
     }
 
     if (state.attributes) {
