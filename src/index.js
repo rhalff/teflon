@@ -299,21 +299,6 @@ export default class Teflon {
 
   /**
    *
-   * Adds a new state in addition of the defaultState.
-   *
-   * A state consists of attribute changes and/or event handler changes.
-   *
-   * @param {String} stateName State name
-   * @param {Map} state States map
-   * @returns {Teflon} this instance
-   */
-  addState(stateName, state) {
-    this.state[stateName] = state
-    return this
-  }
-
-  /**
-   *
    * Load the template along with it's definition.
    *
    * @param {Object} map Definition map
@@ -427,10 +412,12 @@ export default class Teflon {
 
   /**
    *
-   * Adds a new state
+   * Adds a new state in addition of the defaultState.
+   *
+   * A state consists of attribute changes and/or event handler changes.
    *
    * @param {String} name State name
-   * @param {Object} state State Definition
+   * @param {Map} state States Definition
    * @returns {Teflon} this instance
    */
   addState(name, state) {
