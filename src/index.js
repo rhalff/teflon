@@ -1,6 +1,7 @@
 import DomPointer from 'dompointer'
 import Emitter from 'wildemitter'
 import Dot from 'dot-object'
+import State from './state'
 
 export default class Teflon {
   constructor(dp) {
@@ -360,82 +361,38 @@ export default class Teflon {
 
   /**
    *
-   * A template can have several state assigned.
+   * Has state
    *
-   * In order to execute these states commands are generated.
-   *
-   * which can then be activated like:
-   *
-   *   dp.state.set('command-name')
-   *
-   * And removed with:
-   *
-   *   dp.state.del('command-name')
-   *
-   * Several states can be active at the same time.
-   * Think of them as layers, with their own set of attributes and eventListeners.
-   *
-   * @param {String} name Name
-   * @param {Object} state State definition
-   * @returns {Object} Api object
+   * @param {String} name State name to test
+   * @returns {Boolean} Whether this state exists
    */
-  createCommand(name, state) {
-    const fns = []
-    const rfns = []
-    const _this = this
+  hasState(name) {
+    return this.state.hasOwnProperty(name)
+  }
 
-    function activate(change) {
-      return () => {
-        if (change.op === 'remove') {
-          _this.removeEventHandler(change.name, change.path, change.val)
-        } else {
-          _this.addEventHandler(change.name, change.path, change.val)
-        }
-      }
+  /**
+   *
+   * Has state
+   *
+   * @param {String} name State name to test
+   * @returns {Boolean} Whether this state exists
+   */
+  getState(name) {
+    if (this.state.hasOwnProperty(name)) {
+      return this.state[name]
     }
+    throw Error(`State ${name} does not exist`)
+  }
 
-    function disable(change) {
-      return () => {
-        if (change.op === 'remove') {
-          _this.addEventHandler(change.name, change.path, change.val)
-        } else {
-          _this.removeEventHandler(change.name, change.path, change.val)
-        }
-      }
-    }
-
-    if (state.events) {
-      for (const change of state.events) {
-        fns.push(activate(change))
-        rfns.push(disable(change))
-      }
-    }
-
-    if (state.attributes) {
-      const { attributes: change } = state
-      fns.push(function stateSetter() {
-        _this.dp.setAttributes(this.change)
-      }.bind({change: change}))
-
-      rfns.push(function stateReverter() {
-        _this.dp.revertAttributes(this.change)
-      }.bind({change: change}))
-    }
-
-    function createCommand(funcs) {
-      return () => {
-        for (const func of funcs) {
-          func()
-        }
-      }
-    }
-
-    const api = {
-      activate: createCommand(fns).bind(this),
-      disable: createCommand(rfns).bind(this)
-    }
-
-    return api
+  /**
+   *
+   * Whether this state is activated
+   *
+   * @param {String} name State name to test
+   * @returns {Boolean} Whether this state is activated
+   */
+  inState(name) {
+    return this.getState(name).isActive
   }
 
   /**
@@ -446,9 +403,7 @@ export default class Teflon {
    * @returns {Teflon} this instance
    */
   activateState(name) {
-    if (this.state.hasOwnProperty(name)) {
-      this.state[name].activate()
-    }
+    this.getState(name).activate()
     return this
   }
 
@@ -460,9 +415,7 @@ export default class Teflon {
    * @returns {Teflon} this instance
    */
   disableState(name) {
-    if (this.state.hasOwnProperty(name)) {
-      this.state[name].disable()
-    }
+    this.getState(name).disable()
     return this
   }
 
@@ -476,7 +429,7 @@ export default class Teflon {
    */
   addState(name, state) {
     if (!this.state.hasOwnProperty(name)) {
-      this.state[name] = this.createCommand(name, state)
+      this.state[name] = new State(name, state, this)
       return this
     }
     throw Error(`State "${name}" already added`)

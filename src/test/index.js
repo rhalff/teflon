@@ -1,6 +1,7 @@
 import {} from 'babel/register'
 import { expect, assert } from 'chai'
 import Teflon from '../index'
+import State from '../state'
 import { createElement, click } from './util'
 import JediHTML from './fixtures/jedi'
 import stateMap from './fixtures/state'
@@ -146,6 +147,26 @@ describe('Teflon', () => {
       teflon.on('MOVE.UP', handle)
       click(teflon.dp.getRef('button-up'))
       teflon.off('MOVE.UP', handle)
+    })
+
+    describe('getState()', () => {
+      it('should get existing state', () => {
+        expect(teflon.getState('move-up')).to.be.instanceOf(State)
+      })
+      it('should throw if state does not exist', () => {
+        expect(() => teflon.getState('no-exist')).to.throw(/not exist/)
+      })
+    })
+
+    it('hasState()', () => {
+      expect(teflon.hasState('move-up')).to.eql(true)
+      expect(teflon.hasState('move-down')).to.eql(true)
+      expect(teflon.hasState('move-err')).to.eql(false)
+    })
+    it('inState()', () => {
+      expect(teflon.inState('move-up')).to.eql(true)
+      expect(teflon.inState('move-down')).to.eql(false)
+      expect(() => teflon.inState('move-err')).to.throw(/does not exist/)
     })
     it('Move down', (done) => {
       const handle = (ev) => {
