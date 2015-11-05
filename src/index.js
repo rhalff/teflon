@@ -1,12 +1,9 @@
 import DomPointer from 'dompointer'
-import { EventEmitter } from 'events'
+import Emitter from 'wildemitter'
 import Dot from 'dot-object'
 
-export default class Teflon extends EventEmitter {
-
+export default class Teflon {
   constructor(dp) {
-    super()
-
     this.dp = dp
     this.handlers = {}
     this.state = {}
@@ -518,3 +515,4 @@ export default class Teflon extends EventEmitter {
   }
 }
 
+Emitter.mixin(Teflon)
