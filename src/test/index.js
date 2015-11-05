@@ -124,7 +124,7 @@ describe('Teflon', () => {
       click(teflon.dp.refs.get('button-down'))
 
       teflon.off('move-down', handler)
-      expect(teflon.listeners('move-down').length).to.eql(0)
+      expect(teflon.callbacks).not.have.ownProperty('move-down')
     })
     it('Remove all handlers', () => {
       teflon.removeEventHandlers()
@@ -164,8 +164,8 @@ describe('Teflon', () => {
           .to.eql(':0:0:1:1:0')
         done()
       }
-      expect(teflon.listeners('MOVE.UP').length).to.eql(0)
-      expect(teflon.listeners('MOVE.DOWN').length).to.eql(0)
+      expect(teflon.callbacks).not.have.ownProperty('MOVE.UP')
+      expect(teflon.callbacks).not.have.ownProperty('MOVE.DOWN')
       teflon.on('MOVE.UP', handle)
       click(teflon.dp.getRef('button-up'))
       teflon.off('MOVE.UP', handle)
