@@ -217,5 +217,9 @@ describe('Teflon', () => {
       const el = teflon.dp.getRef('button-up')
       expect(el.getAttribute('class')).to.eql('css-button-up')
     })
+    it('default state should be automatically activated', () => {
+      expect(teflon.hasState('default')).to.eql(true)
+      expect(teflon.inState('default')).to.eql(true)
+    })
   })
 })

@@ -457,6 +457,9 @@ export default class Teflon {
     Object.keys(map).forEach((name) => {
       this.addState(name, map[name])
     })
+    if (this.hasState('default')) {
+      this.activateState('default')
+    }
     return this
   }
 }
