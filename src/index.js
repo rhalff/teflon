@@ -403,6 +403,9 @@ export default class Teflon {
    * @returns {Teflon} this instance
    */
   activateState(name) {
+    if (this.inState(name)) {
+      throw Error(`State ${name} already activated`)
+    }
     this.getState(name).activate()
     return this
   }
@@ -415,6 +418,9 @@ export default class Teflon {
    * @returns {Teflon} this instance
    */
   disableState(name) {
+    if (!this.inState(name)) {
+      throw Error(`State ${name} is already disabled`)
+    }
     this.getState(name).disable()
     return this
   }

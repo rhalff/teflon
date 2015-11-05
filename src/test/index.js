@@ -163,11 +163,21 @@ describe('Teflon', () => {
       expect(teflon.hasState('move-down')).to.eql(true)
       expect(teflon.hasState('move-err')).to.eql(false)
     })
+
     it('inState()', () => {
       expect(teflon.inState('move-up')).to.eql(true)
       expect(teflon.inState('move-down')).to.eql(false)
       expect(() => teflon.inState('move-err')).to.throw(/does not exist/)
     })
+
+    it('Cannot activate an active state', () => {
+      expect(() => teflon.activateState('move-up')).to.throw(/already activated/)
+    })
+
+    it('Cannot disable a disabled state', () => {
+      expect(() => teflon.disableState('move-down')).to.throw(/already disabled/)
+    })
+
     it('Move down', (done) => {
       const handle = (ev) => {
         expect(teflon.dp.path(ev.srcElement))
