@@ -8,7 +8,7 @@
     "clean": "rimraf .build lib",
     "lint": "eslint src test",
     "check": "npm run lint && npm run test",
-    "build:lib": "cd src && babel *.js --out-dir ../lib",
+    "build:lib": "babel src --out-dir lib",
     "_cp:test-assets": "cp src/test/index.html .build/",
     "_babelify:tests": "mkdir -p .build/; browserify -t babelify src/test/index.js -o .build/tests.js -d",
     "build:test": "npm run _babelify:tests && npm run _cp:test-assets",
@@ -48,7 +48,6 @@
     "eslint-plugin-react": "^3.6.3",
     "mocha": "^2.3.3",
     "mocha-phantomjs": "^4.0.1",
-    "rimraf": "^2.4.3",
-    "webpack": "^1.12.2"
+    "rimraf": "^2.4.3"
   }
 }
