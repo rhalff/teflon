@@ -2,6 +2,7 @@
 .build/
 ATTIC/
 lib/
+docs/
 *.swp
 node_modules/
 *.txt
