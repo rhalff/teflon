@@ -8,12 +8,12 @@ import stateMap from './fixtures/state'
 
 describe('Teflon', () => {
   const templateMap = {
-    'planet-monitor': ':0:0:0',
-    'current-planet': ':0:0:0:1',
-    'slot-1': ':0:0:1:0:0',
-    'slot-2': ':0:0:1:0:1',
-    'button-up': ':0:0:1:1:0',
-    'button-down': ':0:0:1:1:1'
+    'planet-monitor': ':0:0',
+    'current-planet': ':0:0:1',
+    'slot-1': ':0:1:0:0',
+    'slot-2': ':0:1:0:1',
+    'button-up': ':0:1:1:0',
+    'button-down': ':0:1:1:1'
   }
 
   const teflon = Teflon.create(createElement(JediHTML))
@@ -64,13 +64,89 @@ describe('Teflon', () => {
         teflon.link('setSlotOne', 'data', mapOne)
         teflon.fill('setSlotOne', data)
 
-        expect(teflon.dp.getRef(':0:0:1:0:0:0').innerHTML).eql('Exar Kun')
-        expect(teflon.dp.getRef(':0:0:1:0:0:1').innerHTML).eql('Coruscant')
+        expect(teflon.dp.getRef(':0:1:0:0:0').innerHTML).eql('Exar Kun')
+        expect(teflon.dp.getRef(':0:1:0:0:1').innerHTML).eql('Coruscant')
         expect(teflon.dp.getRef('slot-1').innerHTML).eql('<h3>Exar Kun</h3><h6>Coruscant</h6>')
 
         teflon.link('setSlotTwo', 'data', mapTwo)
         teflon.fill('setSlotTwo', data)
         expect(teflon.dp.getRef('slot-2').innerHTML).eql('<h3>John Doe</h3><h6>Earth</h6>')
+      })
+
+      // data is the same
+      const data = {
+        test: [
+          {id: 2941, name: 'Second', homeworld: {id: 58, name: 'Second World'}},
+          {id: 2942, name: 'Third', homeworld: {id: 59, name: 'Third World'}}
+        ]
+      }
+
+      it('Repeat array', () => {
+        // repeat second slot
+
+        const map = {
+          // take slot 2
+          'slot-2': {
+            // use data path test which is an array
+            path: 'test',
+            // define how data must be placed
+            items: {
+              // path is relative to slot-2
+              // if desired these could also be aliases
+              // in which case they are just absolute pointers
+              ':0': 'name',
+              ':1': 'homeworld.name'
+            }
+          }
+        }
+
+        teflon.link('repeatSlot2', 'data', map)
+        teflon.fill('repeatSlot2', data)
+        // slot-2 itself is filled with first item
+        expect(teflon.dp.getRef('slot-2').innerHTML).eql('<h3>Second</h3><h6>Second World</h6>')
+        expect(teflon.dp.getRef('slot-2').nextSibling.innerHTML).eql('<h3>Third</h3><h6>Third World</h6>')
+
+        // should survive render
+        teflon.render()
+
+        expect(teflon.dp.getRef('slot-2').innerHTML).eql('<h3>Second</h3><h6>Second World</h6>')
+        expect(teflon.dp.getRef('slot-2').nextSibling.innerHTML).eql('<h3>Third</h3><h6>Third World</h6>')
+      })
+
+      it('re-applied but only one record, should update', () => {
+        data.test.pop()
+        teflon.fill('repeatSlot2', data)
+        teflon.render()
+        expect(teflon.dp.getRef('slot-2').innerHTML).eql('<h3>Second</h3><h6>Second World</h6>')
+        expect(teflon.dp.getRef('slot-2').nextSibling).eql(null)
+      })
+
+      it('re-applied push 3, total of 4 items, should update', () => {
+        // 4
+        data.test.push({ name: 'Fourth', homeworld: {name: 'Fourth World'}})
+        data.test.push({ name: 'Fifth', homeworld: {name: 'Fifth World'}})
+        data.test.push({ name: 'Sixth', homeworld: {name: 'Sixth World'}})
+
+        teflon.fill('repeatSlot2', data)
+        expect(teflon.dp.getRef('slot-2')
+          .innerHTML
+        ).eql('<h3>Second</h3><h6>Second World</h6>')
+
+        expect(teflon.dp.getRef('slot-2')
+          .nextSibling.innerHTML
+        ).eql('<h3>Fourth</h3><h6>Fourth World</h6>')
+
+        expect(teflon.dp.getRef('slot-2')
+          .nextSibling.innerHTML
+        ).eql('<h3>Fourth</h3><h6>Fourth World</h6>')
+
+        expect(teflon.dp.getRef('slot-2')
+          .nextSibling.nextSibling.innerHTML
+        ).eql('<h3>Fifth</h3><h6>Fifth World</h6>')
+
+        expect(teflon.dp.getRef('slot-2')
+          .nextSibling.nextSibling.nextSibling.innerHTML
+        ).eql('<h3>Sixth</h3><h6>Sixth World</h6>')
       })
     })
   })
@@ -78,23 +154,23 @@ describe('Teflon', () => {
   describe('Events', () => {
     it('Add event handler', () => {
       // should probably be converted to emit...
-      teflon.addEventHandler('click', ':0:0:1:1:0', 'move-up')
+      teflon.addEventHandler('click', ':0:1:1:0', 'move-up')
       expect(teflon.handlers).to.haveOwnProperty('click')
       assert.isObject(teflon.handlers.click)
-      assert.isArray(teflon.handlers.click[':0:0:1:1:0'])
-      expect(teflon.handlers.click[':0:0:1:1:0'][0]).eql('move-up')
+      assert.isArray(teflon.handlers.click[':0:1:1:0'])
+      expect(teflon.handlers.click[':0:1:1:0'][0]).eql('move-up')
     })
 
     it('Remove event handler', () => {
       // should probably be converted to emit...
-      teflon.removeEventHandler('click', ':0:0:1:1:0', 'move-up')
+      teflon.removeEventHandler('click', ':0:1:1:0', 'move-up')
       expect(teflon.handlers).to.not.haveOwnProperty('click')
     })
 
     it('Re-add same event handler', () => {
       teflon.addEventHandler('click', 'button-up', 'move-up')
       expect(teflon.handlers).to.haveOwnProperty('click')
-      expect(teflon.handlers.click[':0:0:1:1:0'][0]).eql('move-up')
+      expect(teflon.handlers.click[':0:1:1:0'][0]).eql('move-up')
     })
 
     it('Adding duplication action should fail', () => {
@@ -109,20 +185,20 @@ describe('Teflon', () => {
       teflon.addEventHandler('click', 'button-down', 'move-down')
 
       expect(teflon.handlers).property('click')
-      expect(teflon.handlers.click).to.include.keys(':0:0:1:1:0', ':0:0:1:1:1')
-      expect(teflon.handlers.click[':0:0:1:1:1']).to.contain('move-down')
+      expect(teflon.handlers.click).to.include.keys(':0:1:1:0', ':0:1:1:1')
+      expect(teflon.handlers.click[':0:1:1:1']).to.contain('move-down')
 
       teflon.render()
 
       const handler = (ev) => {
         expect(teflon.dp.path(ev.srcElement))
-          .to.eql(':0:0:1:1:1')
+          .to.eql(':0:1:1:1')
         done()
       }
 
       teflon.on('move-down', handler)
 
-      click(teflon.dp.refs.get('button-down'))
+      click(teflon.dp.dom.refs.get('button-down'))
 
       teflon.off('move-down', handler)
       expect(teflon.callbacks).not.have.ownProperty('move-down')
@@ -140,12 +216,12 @@ describe('Teflon', () => {
     it('Move up', (done) => {
       const handle = (ev) => {
         expect(teflon.dp.path(ev.srcElement))
-          .to.eql(':0:0:1:1:0')
+          .to.eql(':0:1:1:0')
         done()
       }
       teflon.activateState('move-up')
       teflon.on('MOVE.UP', handle)
-      click(teflon.dp.getRef('button-up'))
+      click(teflon.dp.dom.getRef('button-up'))
       teflon.off('MOVE.UP', handle)
     })
 
@@ -181,24 +257,24 @@ describe('Teflon', () => {
     it('Move down', (done) => {
       const handle = (ev) => {
         expect(teflon.dp.path(ev.srcElement))
-          .to.eql(':0:0:1:1:1')
+          .to.eql(':0:1:1:1')
         done()
       }
       teflon.activateState('move-down')
       teflon.on('MOVE.DOWN', handle)
-      click(teflon.dp.getRef('button-down'))
+      click(teflon.dp.dom.getRef('button-down'))
       teflon.off('MOVE.DOWN', handle)
     })
     it('move-up state still active', (done) => {
       const handle = (ev) => {
         expect(teflon.dp.path(ev.srcElement))
-          .to.eql(':0:0:1:1:0')
+          .to.eql(':0:1:1:0')
         done()
       }
       expect(teflon.callbacks).not.have.ownProperty('MOVE.UP')
       expect(teflon.callbacks).not.have.ownProperty('MOVE.DOWN')
       teflon.on('MOVE.UP', handle)
-      click(teflon.dp.getRef('button-up'))
+      click(teflon.dp.dom.getRef('button-up'))
       teflon.off('MOVE.UP', handle)
     })
     it('disable move-down state', () => {

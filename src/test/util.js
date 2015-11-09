@@ -5,6 +5,14 @@ export function createElement(html) {
   return div
 }
 
+export function printFrag(df) {
+  const inner = document.createElement('div')
+  for (const node of df.childNodes) {
+    inner.appendChild(node.cloneNode(true))
+  }
+  return inner.innerHTML
+}
+
 export function click(el) {
   const ev = document.createEvent('MouseEvents')
   ev.initMouseEvent( /* deprecated but works */

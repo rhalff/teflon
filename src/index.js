@@ -2,6 +2,8 @@ import DomPointer from 'dompointer'
 import Emitter from 'wildemitter'
 import Dot from 'dot-object'
 import State from './state'
+import { mixin } from './util'
+import Repeat from './data/repeat'
 
 export default class Teflon {
   constructor(dp) {
@@ -83,7 +85,7 @@ export default class Teflon {
             if (typeof dpath.items === 'string') {
               this.dp.data(tpath, val) // simple default.
             } else if (typeof dpath.items === 'object') {
-              this.data(dpath.items, val, tpath, append)
+              this.repeat(dpath.items, val, tpath, append)
             } else {
               throw Error('Unknown items type', typeof dpath.items)
             }
@@ -187,7 +189,7 @@ export default class Teflon {
    * @returns {undefined} Undefined
    */
   addEventHandler(type, alias, action) {
-    const path = this.dp._dealias(alias)
+    const path = this.dp.dealias(alias)
     if (!this.handlers.hasOwnProperty(type)) {
       this.handlers[type] = {}
       this.dp.on(type, this._handleEvent.bind(this))
@@ -213,6 +215,7 @@ export default class Teflon {
    * @returns {Teflon} this instance
    */
   setElement(el) {
+    this.dp.reset(true)
     this.dp.setElement(el)
     return this
   }
@@ -247,7 +250,7 @@ export default class Teflon {
    * @returns {undefined} Undefined
    */
   removeEventHandler(type, alias, action) {
-    const path = this.dp._dealias(alias)
+    const path = this.dp.dealias(alias)
     if (this.handlers.hasOwnProperty(type)) {
       if (this.handlers[type].hasOwnProperty(path)) {
         const actions = this.handlers[type][path]
@@ -465,3 +468,4 @@ export default class Teflon {
 }
 
 Emitter.mixin(Teflon)
+mixin(Teflon, Repeat)
