@@ -213,14 +213,13 @@ describe('Teflon', () => {
       const handler = (ev) => {
         expect(teflon.dp.path(ev.srcElement))
           .to.eql(':0:1:1:1')
+        teflon.off('move-down', handler)
         done()
       }
 
       teflon.on('move-down', handler)
 
       click(teflon.dp.dom.refs.get('button-down'))
-
-      teflon.off('move-down', handler)
       expect(teflon.callbacks).not.have.ownProperty('move-down')
     })
     it('Remove all handlers', () => {
@@ -264,6 +263,7 @@ describe('Teflon', () => {
           .to.eql(`:0:${nr}`)
         if (nr === 2) {
           document.body.removeChild(target)
+          tef.off('clickMe', handler)
           done()
         }
         nr++
@@ -274,8 +274,6 @@ describe('Teflon', () => {
       click(tef.dp.dom.refs.get(':0:0'))
       click(tef.dp.dom.refs.get(':0:1'))
       click(tef.dp.dom.refs.get(':0:2'))
-
-      tef.off('clickMe', handler)
     })
   })
 
@@ -287,12 +285,12 @@ describe('Teflon', () => {
       const handle = (ev) => {
         expect(teflon.dp.path(ev.srcElement))
           .to.eql(':0:1:1:0')
+        teflon.off('MOVE.UP', handle)
         done()
       }
       teflon.activateState('move-up')
       teflon.on('MOVE.UP', handle)
       click(teflon.dp.dom.getRef('button-up'))
-      teflon.off('MOVE.UP', handle)
     })
 
     describe('getState()', () => {
@@ -328,24 +326,24 @@ describe('Teflon', () => {
       const handle = (ev) => {
         expect(teflon.dp.path(ev.srcElement))
           .to.eql(':0:1:1:1')
+        teflon.off('MOVE.DOWN', handle)
         done()
       }
       teflon.activateState('move-down')
       teflon.on('MOVE.DOWN', handle)
       click(teflon.dp.dom.getRef('button-down'))
-      teflon.off('MOVE.DOWN', handle)
     })
     it('move-up state still active', (done) => {
       const handle = (ev) => {
         expect(teflon.dp.path(ev.srcElement))
           .to.eql(':0:1:1:0')
+        teflon.off('MOVE.UP', handle)
         done()
       }
       expect(teflon.callbacks).not.have.ownProperty('MOVE.UP')
       expect(teflon.callbacks).not.have.ownProperty('MOVE.DOWN')
       teflon.on('MOVE.UP', handle)
       click(teflon.dp.dom.getRef('button-up'))
-      teflon.off('MOVE.UP', handle)
     })
     it('disable move-down state', () => {
       teflon.disableState('move-down')
