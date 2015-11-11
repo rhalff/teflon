@@ -148,6 +148,26 @@ describe('Teflon', () => {
           .nextSibling.nextSibling.nextSibling.innerHTML
         ).eql('<h3>Sixth</h3><h6>Sixth World</h6>')
       })
+
+      it('zero items', () => {
+        const tef = Teflon.create(createElement(`
+          <ul id="list"><li id="listItem"><a href="#link">Link</a></li></ul>
+        `))
+
+        const map = {
+          'listItem': {
+            path: 'test',
+            items: {
+              ':0': 'name'
+            }
+          }
+        }
+
+        tef.link('default', 'data', map)
+        tef.fill('default', { test: [] })
+        expect(tef.dp.getRef(':0').innerHTML).eql('')
+        expect(tef.dp.getRef(':0').childNodes.length).eql(0)
+      })
     })
   })
 
@@ -206,6 +226,56 @@ describe('Teflon', () => {
     it('Remove all handlers', () => {
       teflon.removeEventHandlers()
       expect(Object.keys(teflon.handlers).length).to.eql(0)
+    })
+    it('Repeated items should "inherit" events', (done) => {
+      const tef = Teflon.create(createElement(`
+          <ul id="list"><li><a href="#link">Link</a></li></ul>
+        `))
+      const target = document.createElement('div')
+      document.body.appendChild(target)
+      tef.setElement(target)
+
+      const map = {
+        ':0:0': {
+          path: 'test',
+          items: {
+            ':0': 'name'
+          }
+        }
+      }
+
+      tef.link('default', 'data', map)
+      tef.fill('default', {
+        test: [
+          { name: 'one'},
+          { name: 'two'},
+          { name: 'three'}
+        ]
+      })
+      tef.addEventHandler('click', ':0:0', 'clickMe')
+      tef.render()
+
+      expect(tef.dp.refs.get(':0').childNodes.length).to.eql(3)
+      expect(tef.dp.dom.refs.get(':0').childNodes.length).to.eql(3)
+
+      let nr = 0
+      const handler = (ev) => {
+        expect(tef.dp.path(ev.srcElement))
+          .to.eql(`:0:${nr}`)
+        if (nr === 2) {
+          document.body.removeChild(target)
+          done()
+        }
+        nr++
+      }
+
+      tef.on('clickMe', handler)
+
+      click(tef.dp.dom.refs.get(':0:0'))
+      click(tef.dp.dom.refs.get(':0:1'))
+      click(tef.dp.dom.refs.get(':0:2'))
+
+      tef.off('clickMe', handler)
     })
   })
 

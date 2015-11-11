@@ -12,9 +12,7 @@ export default class Teflon {
     this.state = {}
 
     this.maps = {
-      data: {},
-      template: new Map(),
-      reverseTemplateMap: {}
+      data: {}
     }
   }
 
@@ -159,11 +157,18 @@ export default class Teflon {
 
     const cp = this.dp.path(ev.srcElement).split(':')
     while (cp.length) {
-      const epath = cp.join(':')
+      let epath = cp.join(':')
+      const el = this.dp.getRef(epath)
+
+      if (el.dataset && el.dataset.teflonOwner && el.dataset.teflonOwner !== epath) {
+        // match as owner, emit as ourselves
+        epath = el.dataset.teflonOwner
+      }
+
       if (this.handlers[ev.type].hasOwnProperty(epath)) {
         const actions = this.handlers[ev.type][epath]
         for (const action of actions) {
-          this.emit(action, ev)
+          this.emit(action, ev, el)
         }
         // TODO: only break if stopPropagation
         break
