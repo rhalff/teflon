@@ -47,8 +47,8 @@ export default class Repeat {
     }
 
     const nodes = container.querySelectorAll('[data-teflon-owner="' + path + '"]')
-
     let oldCount = nodes ? nodes.length : 0
+
     if (oldCount < rowCount) {
       let node = firstRow
       for (let idx = oldCount; idx < rowCount; idx++) {
@@ -61,7 +61,10 @@ export default class Repeat {
         container.removeChild(nodes[--oldCount])
       }
     } else {
-      // nop
+      // first has no owner info
+      if (this.dp.refs.has(path)) {
+        container.removeChild(this.dp.refs.get(path))
+      }
     }
 
     this.dp.parse()
