@@ -1,6 +1,6 @@
 {
   "name": "teflon",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Teflon template engine",
   "main": "lib/index.js",
   "esnext:main": "src/index.js",
