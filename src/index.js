@@ -9,7 +9,8 @@ export default class Teflon {
   constructor(dp) {
     this.dp = dp
     this.handlers = {}
-    this.state = {}
+    this.state = new Map()
+    this._prototype = {}
 
     this.maps = {
       data: {}
@@ -61,23 +62,13 @@ export default class Teflon {
     Object.keys(map).forEach((tpath) => {
       const dpath = map[tpath]
       if (dpath.constructor.name === 'Object') {
-        /*
-         const dmap = {
-           ':0:1': { // panel-body
-             path: 'my.items',
-             // items: ':0' // same as ':0:1:0': 'my.items'
-             items: {
-              ':0': 'title', // the text
-              ':1': 'desc'   // the <p>
-             }
-           }
-         }
-         */
         if (dpath.hasOwnProperty('path')) {
           const val = Dot.pick(dpath.path, data)
           if (dpath.hasOwnProperty('items')) {
             if (!Array.isArray(val)) {
-              throw Error('items defined, but picked data is not of the array type')
+              throw Error(
+                `items defined but picked data is not an array while trying to fill ${tpath} with ${dpath.path}`
+              )
             }
             // processItems
             if (typeof dpath.items === 'string') {
@@ -101,19 +92,6 @@ export default class Teflon {
       } else {
         throw Error('Don\'t know how to handle data path of type: ' + typeof dpath)
       }
-      /*
-       const p = castArray(map[path])
-       const val = Dot.pick(path, data)
-       for (const i = 0; i < p.length; i++) {
-         // here p[i] can be an object. which is special case.
-         if (p[i].constructor.name === 'Object') {
-           throw Error('not implemented')
-           // if this is the case, recursion takes place.
-         } else {
-           this.data(p[i], val)
-         }
-       }
-       */
     })
   }
 
@@ -357,22 +335,34 @@ export default class Teflon {
    * Has state
    *
    * @param {String} name State name to test
+   * @param {String} path Instance path
    * @returns {Boolean} Whether this state exists
    */
-  hasState(name) {
-    return this.state.hasOwnProperty(name)
+  hasState(name, path) {
+    if (this.state.has(name)) {
+      if (path) {
+        const state = this.state.get(name)
+        return state.constructor.name === 'Map' && state.has(path)
+      }
+      return true
+    }
+    return false
   }
 
   /**
    *
-   * Has state
+   * Get state
    *
    * @param {String} name State name to test
+   * @param {String} path Instance path
    * @returns {Boolean} Whether this state exists
    */
-  getState(name) {
-    if (this.state.hasOwnProperty(name)) {
-      return this.state[name]
+  getState(name, path) {
+    if (this.hasState(name, path)) {
+      if (path) {
+        return this.state.get(name).get(path)
+      }
+      return this.state.get(name)
     }
     throw Error(`State ${name} does not exist`)
   }
@@ -382,10 +372,24 @@ export default class Teflon {
    * Whether this state is activated
    *
    * @param {String} name State name to test
+   * @param {String} path Instance path
    * @returns {Boolean} Whether this state is activated
    */
-  inState(name) {
-    return this.getState(name).isActive
+  inState(name, path) {
+    return this.getState(name, path).isActive
+  }
+
+  toggleState(name, path, clear) {
+    if (!this.hasState(name, path) || !this.inState(name, path)) {
+      if (clear) {
+        // BIG HACK, it includes the init.
+        this.activateState(name, path)
+        this.disableAll(name)
+      }
+      this.activateState(name, path)
+    } else {
+      this.disableState(name, path)
+    }
   }
 
   /**
@@ -393,13 +397,22 @@ export default class Teflon {
    * Activates a predefined state
    *
    * @param {String} name State name to activate
+   * @param {String} path Instance path
    * @returns {Teflon} this instance
    */
-  activateState(name) {
-    if (this.inState(name)) {
-      throw Error(`State ${name} already activated`)
+  activateState(name, path) {
+    if (path && !this.hasState(name, path)) {
+      if (!this._prototype[name]) {
+        this._prototype[name] = this.getState(name)
+        this.state.set(name, new Map())
+      }
+      this.getState(name).set(path, this._prototype[name].clone(path))
     }
-    this.getState(name).activate()
+    if (this.inState(name, path)) {
+      const fname = path ? `${name}[${path.split(':').pop()}]` : name
+      throw Error(`State ${fname} already activated`)
+    }
+    this.getState(name, path).activate()
     return this
   }
 
@@ -408,14 +421,28 @@ export default class Teflon {
    * disables a predefined state
    *
    * @param {String} name State name to disable
+   * @param {String} path Instance path
    * @returns {Teflon} this instance
    */
-  disableState(name) {
-    if (!this.inState(name)) {
+  disableState(name, path) {
+    if (!this.inState(name, path)) {
       throw Error(`State ${name} is already disabled`)
     }
-    this.getState(name).disable()
+    this.getState(name, path).disable()
     return this
+  }
+
+  disableAll(name) {
+    const state = this.state.get(name)
+    if (state.constructor.name === 'Map') {
+      for (const path of state.keys()) {
+        if (this.inState(name, path)) {
+          this.disableState(name, path)
+        }
+      }
+    } else {
+      throw Error('disableAll can only be used for instances')
+    }
   }
 
   /**
@@ -429,8 +456,8 @@ export default class Teflon {
    * @returns {Teflon} this instance
    */
   addState(name, state) {
-    if (!this.state.hasOwnProperty(name)) {
-      this.state[name] = new State(name, state, this)
+    if (!this.state.has(name)) {
+      this.state.set(name, new State(name, state, this))
       return this
     }
     throw Error(`State "${name}" already added`)
@@ -441,12 +468,17 @@ export default class Teflon {
    * Removes a state
    *
    * @param {String} name State name
+   * @param {String} path Instance path
    * @returns {Teflon} this instance
    */
-  removeState(name) {
-    if (this.state.hasOwnProperty(name)) {
-      this.disableState()
-      delete this.state[name]
+  removeState(name, path) {
+    if (this.hasState(name, path)) {
+      this.disableState(name, path)
+      if (path) {
+        this.state.get(name).del(path)
+      } else {
+        this.state.del(name)
+      }
       return this
     }
     throw Error(`State "${name}" does not exist`)
