@@ -8,7 +8,7 @@ import Repeat from './data/repeat'
 export default class Teflon {
   constructor(dp) {
     this.dp = dp
-    this.handlers = {}
+    this.handlers = new Map
     this.state = new Map()
     this._prototype = {}
 
@@ -129,7 +129,7 @@ export default class Teflon {
   _handleEvent(ev) {
     // TODO: ev.preventDefault()
     ev.stopPropagation()
-    if (!this.handlers.hasOwnProperty(ev.type)) {
+    if (!this.handlers.has(ev.type)) {
       return
     }
 
@@ -143,8 +143,8 @@ export default class Teflon {
         epath = el.dataset.teflonOwner
       }
 
-      if (this.handlers[ev.type].hasOwnProperty(epath)) {
-        const actions = this.handlers[ev.type][epath]
+      if (this.handlers.get(ev.type).has(epath)) {
+        const actions = this.handlers.get(ev.type).get(epath)
         for (const action of actions) {
           this.emit(action, ev, el)
         }
@@ -173,16 +173,16 @@ export default class Teflon {
    */
   addEventHandler(type, alias, action) {
     const path = this.dp.dealias(alias)
-    if (!this.handlers.hasOwnProperty(type)) {
-      this.handlers[type] = {}
+    if (!this.handlers.has(type)) {
+      this.handlers.set(type, new Map())
       this.dp.on(type, this._handleEvent.bind(this))
     }
 
-    if (!this.handlers[type].hasOwnProperty(path)) {
-      this.handlers[type][path] = []
+    if (!this.handlers.get(type).has(path)) {
+      this.handlers.get(type).set(path, [])
     }
 
-    const actions = this.handlers[type][path]
+    const actions = this.handlers.get(type).get(path)
     if (actions.indexOf(action) === -1) {
       actions.push(action)
     } else {
@@ -234,16 +234,16 @@ export default class Teflon {
    */
   removeEventHandler(type, alias, action) {
     const path = this.dp.dealias(alias)
-    if (this.handlers.hasOwnProperty(type)) {
-      if (this.handlers[type].hasOwnProperty(path)) {
-        const actions = this.handlers[type][path]
+    if (this.handlers.has(type)) {
+      if (this.handlers.get(type).has(path)) {
+        const actions = this.handlers.get(type).get(path)
         const index = actions.indexOf(action)
         if (index >= 0) {
           actions.splice(index, 1)
           if (actions.length === 0) {
-            delete this.handlers[type][path]
-            if (Object.keys(this.handlers[type]).length === 0) {
-              delete this.handlers[type]
+            this.handlers.get(type).delete(path)
+            if (this.handlers.get(type).size === 0) {
+              this.handlers.delete(type)
               this.dp.off(type)
             }
           }
@@ -263,12 +263,12 @@ export default class Teflon {
    */
   removeEventHandlers(type = []) {
     const types = Array.isArray(type) ? type : [type]
-    Object.keys(this.handlers).forEach((key) => {
+    for (const key of this.handlers.keys()) {
       if (!types.length || types.indexOf(key) >= 0) {
         this.dp.off(key)
-        delete this.handlers[key]
+        this.handlers.delete(key)
       }
-    })
+    }
   }
 
   /**
@@ -475,9 +475,9 @@ export default class Teflon {
     if (this.hasState(name, path)) {
       this.disableState(name, path)
       if (path) {
-        this.state.get(name).del(path)
+        this.state.get(name).delete(path)
       } else {
-        this.state.del(name)
+        this.state.delete(name)
       }
       return this
     }

@@ -1,5 +1,5 @@
 import {} from 'babel/register'
-import { expect, assert } from 'chai'
+import { expect } from 'chai'
 import Teflon from '../index'
 import State from '../state'
 import { createElement, click } from './util'
@@ -175,22 +175,20 @@ describe('Teflon', () => {
     it('Add event handler', () => {
       // should probably be converted to emit...
       teflon.addEventHandler('click', ':0:1:1:0', 'move-up')
-      expect(teflon.handlers).to.haveOwnProperty('click')
-      assert.isObject(teflon.handlers.click)
-      assert.isArray(teflon.handlers.click[':0:1:1:0'])
-      expect(teflon.handlers.click[':0:1:1:0'][0]).eql('move-up')
+      expect(teflon.handlers.has('click')).to.eql(true)
+      expect(teflon.handlers.get('click').get(':0:1:1:0')[0]).eql('move-up')
     })
 
     it('Remove event handler', () => {
       // should probably be converted to emit...
       teflon.removeEventHandler('click', ':0:1:1:0', 'move-up')
-      expect(teflon.handlers).to.not.haveOwnProperty('click')
+      expect(teflon.handlers.has('click')).to.eql(false)
     })
 
     it('Re-add same event handler', () => {
       teflon.addEventHandler('click', 'button-up', 'move-up')
-      expect(teflon.handlers).to.haveOwnProperty('click')
-      expect(teflon.handlers.click[':0:1:1:0'][0]).eql('move-up')
+      expect(teflon.handlers.has('click')).to.eql(true)
+      expect(teflon.handlers.get('click').get(':0:1:1:0')[0]).eql('move-up')
     })
 
     it('Adding duplication action should fail', () => {
@@ -204,9 +202,9 @@ describe('Teflon', () => {
       teflon.setElement(target)
       teflon.addEventHandler('click', 'button-down', 'move-down')
 
-      expect(teflon.handlers).property('click')
-      expect(teflon.handlers.click).to.include.keys(':0:1:1:0', ':0:1:1:1')
-      expect(teflon.handlers.click[':0:1:1:1']).to.contain('move-down')
+      expect(teflon.handlers.has('click')).to.eql(true)
+      expect([...teflon.handlers.get('click').keys()]).to.contain(':0:1:1:0', ':0:1:1:1')
+      expect(teflon.handlers.get('click').get(':0:1:1:1')).to.contain('move-down')
 
       teflon.render()
 
@@ -224,7 +222,7 @@ describe('Teflon', () => {
     })
     it('Remove all handlers', () => {
       teflon.removeEventHandlers()
-      expect(Object.keys(teflon.handlers).length).to.eql(0)
+      expect(teflon.handlers.size).to.eql(0)
     })
     it('Repeated items should "inherit" events', (done) => {
       const tef = Teflon.create(createElement(`
