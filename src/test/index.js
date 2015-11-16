@@ -212,17 +212,22 @@ describe('Teflon', () => {
         expect(teflon.dp.path(ev.srcElement))
           .to.eql(':0:1:1:1')
         teflon.off('move-down', handler)
+        expect(teflon.callbacks).not.have.ownProperty('move-down')
         done()
       }
 
       teflon.on('move-down', handler)
 
       click(teflon.dp.dom.refs.get('button-down'))
-      expect(teflon.callbacks).not.have.ownProperty('move-down')
     })
     it('Remove all handlers', () => {
       teflon.removeEventHandlers()
       expect(teflon.handlers.size).to.eql(0)
+    })
+    it('Should be able to handle no listeners', () => {
+      expect(teflon.callbacks).not.have.ownProperty('move-down')
+      expect(teflon.handlers.size).to.eql(0)
+      click(teflon.dp.dom.refs.get('button-down'))
     })
     it('Repeated items should "inherit" events', (done) => {
       const tef = Teflon.create(createElement(`
