@@ -4,6 +4,7 @@ import { mixin } from './util'
 import Repeat from './data/repeat'
 import States from './states'
 import Events from './events'
+import merge from 'lodash.merge'
 
 export default class Teflon {
   constructor(dp) {
@@ -11,9 +12,10 @@ export default class Teflon {
     this.handlers = new Map
     this.state = new Map()
     this._prototype = {}
+    this.input = {}
 
     this.maps = {
-      data: {}
+      data: new Map()
     }
   }
 
@@ -34,7 +36,7 @@ export default class Teflon {
     if (!this.maps.hasOwnProperty(type)) {
       throw Error('Unknown mapping type: ' + type)
     }
-    this.maps[type][name] = map
+    this.maps[type].set(name, map)
     return this
   }
 
@@ -48,12 +50,11 @@ export default class Teflon {
    * @returns {Teflon} this instance
    */
   fill(name, data, append) {
-    // data map contains pointers, and dotted path of data.
-    // the dotted path will be constructed from a schema
-    if (!this.maps.data.hasOwnProperty(name)) {
+
+    if (!this.maps.data.has(name)) {
       throw Error('No such data map: ' + name)
     }
-    const map = this.maps.data[name]
+    const map = this.maps.data.get(name)
     this._fill(map, data, append)
     return this
   }
@@ -201,7 +202,6 @@ export default class Teflon {
     })
     return this
   }
-
 }
 
 mixin(Teflon, Events)
