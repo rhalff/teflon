@@ -1,4 +1,3 @@
-import {} from 'babel/register'
 import { expect } from 'chai'
 import Teflon from '../index'
 import State from '../state'

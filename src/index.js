@@ -4,7 +4,6 @@ import { mixin } from './util'
 import Repeat from './data/repeat'
 import States from './states'
 import Events from './events'
-import merge from 'lodash.merge'
 
 export default class Teflon {
   constructor(dp) {
