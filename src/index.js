@@ -6,9 +6,9 @@ import States from './states'
 import Events from './events'
 
 export default class Teflon {
-  constructor(dp) {
+  constructor (dp) {
     this.dp = dp
-    this.handlers = new Map
+    this.handlers = new Map()
     this.state = new Map()
     this._prototype = {}
     this.input = {}
@@ -18,7 +18,7 @@ export default class Teflon {
     }
   }
 
-  static create(el) {
+  static create (el) {
     return new Teflon(DomPointer.create(el))
   }
 
@@ -31,7 +31,7 @@ export default class Teflon {
    * @param {Object} map map
    * @returns {Teflon} this instance
    */
-  link(name, type, map) {
+  link (name, type, map) {
     if (!this.maps.hasOwnProperty(type)) {
       throw Error('Unknown mapping type: ' + type)
     }
@@ -48,8 +48,7 @@ export default class Teflon {
    * @param {Boolean} append whether to append the data
    * @returns {Teflon} this instance
    */
-  fill(name, data, append) {
-
+  fill (name, data, append) {
     if (!this.maps.data.has(name)) {
       throw Error('No such data map: ' + name)
     }
@@ -58,7 +57,7 @@ export default class Teflon {
     return this
   }
 
-  _fill(map, data, append, ptpath) {
+  _fill (map, data, append, ptpath) {
     Object.keys(map).forEach((tpath) => {
       const dpath = map[tpath]
       if (dpath.constructor.name === 'Object') {
@@ -105,7 +104,7 @@ export default class Teflon {
    *
    * @returns {Teflon} this instance
    */
-  render() {
+  render () {
     this.dp.render()
     return this
   }
@@ -117,19 +116,9 @@ export default class Teflon {
    * @param {HTMLElement} el HTML Element
    * @returns {Teflon} this instance
    */
-  setElement(el) {
+  setElement (el) {
     this.dp.reset(true)
     this.dp.setElement(el)
-    return this
-  }
-
-  /**
-   * Render
-   *
-   * @returns {Teflon} this instance
-   */
-  render() {
-    this.dp.render()
     return this
   }
 
@@ -139,7 +128,7 @@ export default class Teflon {
    *
    * @returns {HTMLElement} HTML Element
    */
-  getElement() {
+  getElement () {
     return this.dp.el
   }
 
@@ -150,7 +139,7 @@ export default class Teflon {
    * @param {String} html HTML String
    * @returns {Teflon} this instance
    */
-  setHTML(html) {
+  setHTML (html) {
     this.dp.setHTML(html)
     return this
   }
@@ -165,7 +154,7 @@ export default class Teflon {
    * @param {Object} map.state State map def
    * @returns {Teflon} this instance
    */
-  load(map) {
+  load (map) {
     // set parse html and set it as default view
     return this.setTemplateMap(map.template)
       .setDataMap(map.data)
@@ -178,7 +167,7 @@ export default class Teflon {
    * @param {Object} map Template map
    * @returns {Teflon} this instance
    */
-  setTemplateMap(map) {
+  setTemplateMap (map) {
     if (this.dp.refs.size) {
       this.dp.reset()
     }
@@ -195,7 +184,7 @@ export default class Teflon {
    * @param {Object} map Map
    * @returns {Teflon} this instance
    */
-  setDataMap(map) {
+  setDataMap (map) {
     Object.keys(map).forEach((name) => {
       this.link(name, 'data', map[name])
     })

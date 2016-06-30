@@ -3,7 +3,7 @@ export default def
 const def = {
   type: 'Teflon', // default definition format
   title: 'Basic Example with Click Counter',
-  tag: 'Counter'
+  tag: 'Counter',
   template: '<h2>Click me! Number of clicks: <!-- click counter --></h2>',
   mapping: {
     'button': ':0',

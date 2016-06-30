@@ -19,7 +19,7 @@ import { copyObj } from './util'
  *
  */
 export default class State {
-  constructor(name, state, teflon) {
+  constructor (name, state, teflon) {
     this.name = name
     this.teflon = teflon
     this.isActive = false
@@ -28,7 +28,7 @@ export default class State {
     this.attributes = state.attributes
   }
 
-  _activateEvent(change) {
+  _activateEvent (change) {
     if (change.op === 'remove') {
       this.teflon.removeEventHandler(change.name, change.path, change.val)
     } else {
@@ -36,7 +36,7 @@ export default class State {
     }
   }
 
-  _disableEvent(change) {
+  _disableEvent (change) {
     if (change.op === 'remove') {
       this.teflon.addEventHandler(change.name, change.path, change.val)
     } else {
@@ -44,15 +44,15 @@ export default class State {
     }
   }
 
-  _setAttributes(change) {
+  _setAttributes (change) {
     this.teflon.dp.setAttributes(change)
   }
 
-  _revertAttributes(change) {
+  _revertAttributes (change) {
     this.teflon.dp.revertAttributes(change)
   }
 
-  activate() {
+  activate () {
     if (this.events) {
       for (const change of this.events) {
         this._applyPathToEvent(change)
@@ -69,13 +69,13 @@ export default class State {
     return this
   }
 
-  _applyPathToEvent(change) {
+  _applyPathToEvent (change) {
     if (this.path && !change.path) {
       change.path = this.path
     }
   }
 
-  _applyPathToAttributes() {
+  _applyPathToAttributes () {
     if (this.path) {
       for (const change of this.attributes) {
         if (this.path && !change.path) {
@@ -85,7 +85,7 @@ export default class State {
     }
   }
 
-  disable() {
+  disable () {
     if (this.events) {
       for (const change of this.events) {
         this._applyPathToEvent(change)
@@ -102,7 +102,7 @@ export default class State {
     return this
   }
 
-  clone(path) {
+  clone (path) {
     if (this.path) {
       throw Error('Clone from master')
     }

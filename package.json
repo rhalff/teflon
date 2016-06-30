@@ -6,7 +6,7 @@
   "esnext:main": "src/index.js",
   "scripts": {
     "clean": "rimraf .build lib",
-    "lint": "eslint src test",
+    "lint": "standard",
     "check": "npm run lint && npm run test",
     "build:lib": "babel src --out-dir lib",
     "_cp:test-assets": "cp src/test/index.html .build/",
@@ -45,11 +45,16 @@
     "babelify": "^7.3.0",
     "browserify": "^13.0.1",
     "chai": "^3.5.0",
-    "eslint": "^2.13.1",
-    "eslint-config-airbnb": "^9.0.1",
-    "eslint-plugin-react": "^5.2.2",
     "mocha": "^2.5.3",
     "mocha-phantomjs": "^4.1.0",
-    "rimraf": "^2.5.2"
+    "rimraf": "^2.5.2",
+    "standard": "^7.1.2"
+  },
+  "standard": {
+    "parser": "babel-eslint",
+    "globals": [
+      "it",
+      "describe"
+    ]
   }
 }

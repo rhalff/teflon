@@ -3,7 +3,7 @@ import Dot from 'dot-object'
 
 export default class Repeat {
 
-  getInsertionRow(rowTpl, container, path) {
+  getInsertionRow (rowTpl, container, path) {
     let baseRow
     // if the path exist set it as first row and set the index
     if (this.dp.refs.has(path)) {
@@ -36,7 +36,7 @@ export default class Repeat {
    * @param {Number} rowCount Number of rows to create
    * @returns {Undefined} Undefined
    */
-  createRows(base, path, rowCount) {
+  createRows (base, path, rowCount) {
     let firstRow
 
     const container = this.dp.getRef(base.join(':'))
@@ -93,7 +93,7 @@ export default class Repeat {
    * @param {Boolean} append Whether to append the data
    * @returns {Undefined} Undefined
    */
-  repeat(pdef, data, cpath, append) {
+  repeat (pdef, data, cpath, append) {
     if (!Array.isArray(data)) {
       throw Error('Items must be an array')
     }
@@ -106,7 +106,7 @@ export default class Repeat {
     this.fillRows(base, pdef, data, start, append)
   }
 
-  fillRows(base, def, data, start, append) {
+  fillRows (base, def, data, start, append) {
     const paths = Object.keys(def)
     let pos = start
     for (let idx = 0; idx < data.length; idx++) {

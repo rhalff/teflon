@@ -9,7 +9,7 @@ export default class States {
    * @param {String} path Instance path
    * @returns {Boolean} Whether this state exists
    */
-  hasState(name, path) {
+  hasState (name, path) {
     if (this.state.has(name)) {
       if (path) {
         const state = this.state.get(name)
@@ -28,7 +28,7 @@ export default class States {
    * @param {String} path Instance path
    * @returns {Boolean} Whether this state exists
    */
-  getState(name, path) {
+  getState (name, path) {
     if (this.hasState(name, path)) {
       if (path) {
         return this.state.get(name).get(path)
@@ -46,11 +46,11 @@ export default class States {
    * @param {String} path Instance path
    * @returns {Boolean} Whether this state is activated
    */
-  inState(name, path) {
+  inState (name, path) {
     return this.getState(name, path).isActive
   }
 
-  toggleState(name, path, clear) {
+  toggleState (name, path, clear) {
     if (!this.hasState(name, path) || !this.inState(name, path)) {
       if (clear) {
         // BIG HACK, it includes the init.
@@ -71,7 +71,7 @@ export default class States {
    * @param {String} path Instance path
    * @returns {Teflon} this instance
    */
-  activateState(name, path) {
+  activateState (name, path) {
     if (path && !this.hasState(name, path)) {
       if (!this._prototype[name]) {
         this._prototype[name] = this.getState(name)
@@ -95,7 +95,7 @@ export default class States {
    * @param {String} path Instance path
    * @returns {Teflon} this instance
    */
-  disableState(name, path) {
+  disableState (name, path) {
     if (!this.inState(name, path)) {
       throw Error(`State ${name} is already disabled`)
     }
@@ -103,7 +103,7 @@ export default class States {
     return this
   }
 
-  disableAll(name) {
+  disableAll (name) {
     const state = this.state.get(name)
     if (state.constructor.name === 'Map') {
       for (const path of state.keys()) {
@@ -126,7 +126,7 @@ export default class States {
    * @param {Map} state States Definition
    * @returns {Teflon} this instance
    */
-  addState(name, state) {
+  addState (name, state) {
     if (!this.state.has(name)) {
       this.state.set(name, new State(name, state, this))
       return this
@@ -142,7 +142,7 @@ export default class States {
    * @param {String} path Instance path
    * @returns {Teflon} this instance
    */
-  removeState(name, path) {
+  removeState (name, path) {
     if (this.hasState(name, path)) {
       this.disableState(name, path)
       if (path) {
@@ -164,7 +164,7 @@ export default class States {
    * @param {Object} map.attributes State Attributes
    * @returns {Teflon} this instance
    */
-  setStateMap(map) {
+  setStateMap (map) {
     Object.keys(map).forEach((name) => {
       this.addState(name, map[name])
     })

@@ -1,11 +1,11 @@
 import Emitter from 'wildemitter'
 
 export default class Events {
-  on(event, listener) {
+  on (event, listener) {
     super.on(event, listener)
   }
 
-  off(event, listener) {
+  off (event, listener) {
     super.removeListener(event, listener)
   }
 
@@ -25,7 +25,7 @@ export default class Events {
    * @param {String} action action name
    * @returns {undefined} Undefined
    */
-  addEventHandler(type, alias, action) {
+  addEventHandler (type, alias, action) {
     const path = this.dp.dealias(alias)
     if (!this.handlers.has(type)) {
       this.handlers.set(type, new Map())
@@ -53,7 +53,7 @@ export default class Events {
    * @param {String} action action name
    * @returns {undefined} Undefined
    */
-  removeEventHandler(type, alias, action) {
+  removeEventHandler (type, alias, action) {
     const path = this.dp.dealias(alias)
     if (this.handlers.has(type)) {
       if (this.handlers.get(type).has(path)) {
@@ -82,7 +82,7 @@ export default class Events {
    * @param {String[]} type Event Type
    * @returns {undefined} Undefined
    */
-  removeEventHandlers(type = []) {
+  removeEventHandlers (type = []) {
     const types = Array.isArray(type) ? type : [type]
     for (const key of this.handlers.keys()) {
       if (!types.length || types.indexOf(key) >= 0) {
@@ -100,7 +100,7 @@ export default class Events {
    * @param {DomEvent} ev Event listener on window
    * @returns {undefined} Undefined
    */
-  _handleEvent(ev) {
+  _handleEvent (ev) {
     // TODO: ev.preventDefault()
     ev.stopPropagation()
     if (!this.handlers.has(ev.type)) {

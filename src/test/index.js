@@ -122,9 +122,9 @@ describe('Teflon', () => {
 
       it('re-applied push 3, total of 4 items, should update', () => {
         // 4
-        data.test.push({ name: 'Fourth', homeworld: {name: 'Fourth World'}})
-        data.test.push({ name: 'Fifth', homeworld: {name: 'Fifth World'}})
-        data.test.push({ name: 'Sixth', homeworld: {name: 'Sixth World'}})
+        data.test.push({name: 'Fourth', homeworld: {name: 'Fourth World'}})
+        data.test.push({name: 'Fifth', homeworld: {name: 'Fifth World'}})
+        data.test.push({name: 'Sixth', homeworld: {name: 'Sixth World'}})
 
         teflon.fill('repeatSlot2', data)
         expect(teflon.dp.getRef('slot-2')
@@ -248,9 +248,9 @@ describe('Teflon', () => {
       tef.link('default', 'data', map)
       tef.fill('default', {
         test: [
-          { name: 'one'},
-          { name: 'two'},
-          { name: 'three'}
+          {name: 'one'},
+          {name: 'two'},
+          {name: 'three'}
         ]
       })
       tef.addEventHandler('click', ':0:0', 'clickMe')

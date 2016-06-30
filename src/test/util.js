@@ -1,11 +1,11 @@
-export function createElement(html) {
+export function createElement (html) {
   const div = document.createElement('div')
   div.innerHTML = html
 
   return div
 }
 
-export function printFrag(df) {
+export function printFrag (df) {
   const inner = document.createElement('div')
   for (const node of df.childNodes) {
     inner.appendChild(node.cloneNode(true))
@@ -13,9 +13,10 @@ export function printFrag(df) {
   return inner.innerHTML
 }
 
-export function click(el) {
+export function click (el) {
   const ev = document.createEvent('MouseEvents')
-  ev.initMouseEvent( /* deprecated but works */
+  // deprecated but works
+  ev.initMouseEvent(
     'click',
     true, true,
     document.defaultView,

@@ -1,6 +1,6 @@
 export default {
   'default': {
-    attributes: [{ path: ':0', op: 'add', name: 'class', val: 'default-applied' }],
+    attributes: [{ path: ':0', op: 'add', name: 'class', val: 'default-applied' }]
   },
   'move-up': {
     events: [{ path: 'button-up', op: 'add', name: 'click', val: 'MOVE.UP' }]
@@ -31,4 +31,3 @@ export default {
   }
   */
 }
-
