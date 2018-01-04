@@ -27,4 +27,3 @@ export function click (el) {
   )
   el.dispatchEvent(ev)
 }
-

@@ -2,7 +2,6 @@ import { insertAfter } from '../util'
 import Dot from 'dot-object'
 
 export default class Repeat {
-
   getInsertionRow (rowTpl, container, path) {
     let baseRow
     // if the path exist set it as first row and set the index
@@ -117,4 +116,3 @@ export default class Repeat {
     }
   }
 }
-

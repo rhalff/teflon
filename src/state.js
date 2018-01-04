@@ -121,4 +121,3 @@ export default class State {
     throw Error('Clone needs a path')
   }
 }
-
